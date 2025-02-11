@@ -1,0 +1,106 @@
+---
+title: "Evolução do volume de vendas de Veículos, motocicletas, partes e peças no ES"
+author: "Maria Amélia Santiago Ataide"
+format: html
+editor: visual
+lang: pt-br
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+#### 1 Indrodução
+
+O comércio de *Veículos, motocicletas partes e peças* detém o maior peso na estrutura do comércio varejista do Espírito Santo. Em 2020, o atividade *Comércio e reparação de veículos, automotores e motociclets*, respondeu sozinha por 15,2% do Valor Adicionado Bruto do Espírito Santo.[^1] Assim, acompanhar a comportamento deste setor é importante para compreensão do desempenho da economia capixaba. Isso posto, o presente exercício objetivo criar uma visualização da evolução das vendas de *Veículos, motocicletas, partes e peças*, no estado. Para tanto, foram utilizados dados da Pesquisa Mensal de Comércio (PMC) do Instituto Brasileiro de Geografia e Estatística (IBGE).
+
+[^1]: [IJSN (2022)](http://ijsn.es.gov.br/artigos/6343-produto-interno-bruto-pib-estadual-2020?highlight=WyJwaWIiLCJlc3RhZHVhbCIsInBpYiBlc3RhZHVhbCJd)
+
+#### 2 Pacotes
+
+```{r pacotes}
+if(!require(pacman, quietly = T)) install.packages("pacman")
+pacman::p_load(sidrar, tidyverse, tidytable, scales)
+```
+
+#### 3 Importação e manipulação
+
+```{r importacao}
+tab8189 <-
+  "/t/8189/n3/32/v/all/p/all/c11046/all/d/v11706%205,v11707%205,v11708%201,v11709%201,v11710%201,v11711%201" %>%
+  sidrar::get_sidra(api = .)
+```
+
+Os dados importados através da API do [SIDRA/IBGE](https://sidra.ibge.gov.br/tabela/8189), são armazenados pelo `R` em objeto da classe `data.frame`, que neste caso contém `r nrow(tab8189)` linhas e `r ncol(tab8189)` colunas.
+
+```{r}
+dplyr::glimpse(tab8189)
+```
+
+Algumas destas variáveis são irrelavantes para a análise e, portanto, foram excluídas do *dataset*. Outras transformadas e/ou renomeadas.
+
+```{r}
+dados <- 
+  tab8189 |> 
+  janitor::clean_names() |> 
+  dplyr::select(
+    mes_codigo,
+    tipos_de_indice,
+    variavel,
+    valor
+  ) |>
+  dplyr::mutate(
+    mes_codigo = lubridate::ym(mes_codigo)
+  ) 
+```
+
+```{r}
+dplyr::glimpse(dados)
+```
+
+#### 4 Visualização
+
+```{r}
+ dados |>
+  dplyr::filter(variavel == unique(variavel)[6]) |>
+  dplyr::mutate(tipos_de_indice = dplyr::case_when(
+    tipos_de_indice == unique(tipos_de_indice)[1] ~ "Receita",
+    tipos_de_indice == unique(tipos_de_indice)[2] ~ "Volume"
+  )
+  ) |> 
+  tail(120) |>
+  ggplot2::ggplot(aes(
+    mes_codigo, 
+    valor, 
+    color = tipos_de_indice
+  )) +
+  geom_line(linetype = "dashed") +
+  ggplot2::geom_point(shape = 21) +
+  ggplot2::geom_hline(
+    yintercept = 0, 
+    linetype = "dashed", 
+    color = "grey"
+  ) +
+  ggplot2::scale_x_date(
+    breaks = scales::breaks_width("1 month"),
+    labels = scales::label_date(format = "%b-%Y")
+  ) +
+  ggplot2::theme(
+    axis.text.x = element_text(angle = 270, size = 7.5),
+    legend.position = "bottom",
+    legend.title = element_blank(),
+    panel.background = element_blank(),
+    axis.line = element_line(),
+  ) + 
+  ggplot2::labs(
+    x = "",
+    y = "Variação (%) acumulada em 12 meses",
+    caption = "Fonte: Sidra/IBGE",
+    title = "Veiculos, motocicletas, partes e peças",
+    subtitle = "Receita nominal e Volume de vendas"
+  )
+```
+
+#### 5 Breve análise do gráfico
+
+O gráfico acima permite obesrvar que, no indicador acumulado em 12 meses, houve uma convergência entre o comportamento do volume de vendas e da receita nominal durante a maior parte do período em tela. A partir do final de 2020 e ínicio de 2021, ocorre um descolamento entre receita e volume. Isso pode estar associada à valorização dos veículos, em razão do aumento dos recursos tecnológicos disponibilizado por eles, bem como a escassez dos semicondutores utilizados em sua fabricação. Ainda assim, o segmento apresentou ampliação no volume de vendas. Por fim, cabe destacar que a atividade permaneceu majoritariamente no campo positivo ao longo da série. Os resultados negativos demonstrados pelo setor ocorreram durante vários meses de 2020 e começo de 2021. Em 2022, o volume de vendas voltou a registrar queda, enquanto a receita nominal parece ter estacionado em patamar positivo.
