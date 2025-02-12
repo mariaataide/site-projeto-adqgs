@@ -1,5 +1,5 @@
 ---
-title: "Evolução do volume de vendas de Veículos, motocicletas, partes e peças no ES"
+title: "Evolução do volume de vendas de Veículos, motocicletas, partes e peças no Espírito S"
 author: "Maria Amélia Santiago Ataide"
 format: html
 editor: visual
@@ -14,7 +14,7 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 
 O comércio de *Veículos, motocicletas partes e peças* detém o maior peso na estrutura do comércio varejista do Espírito Santo. Em 2020, o atividade *Comércio e reparação de veículos, automotores e motociclets*, respondeu sozinha por 15,2% do Valor Adicionado Bruto do Espírito Santo.[^1] Assim, acompanhar a comportamento deste setor é importante para compreensão do desempenho da economia capixaba. Isso posto, o presente exercício objetivo criar uma visualização da evolução das vendas de *Veículos, motocicletas, partes e peças*, no estado. Para tanto, foram utilizados dados da Pesquisa Mensal de Comércio (PMC) do Instituto Brasileiro de Geografia e Estatística (IBGE).
 
-[^1]: [IJSN (2022)](http://ijsn.es.gov.br/artigos/6343-produto-interno-bruto-pib-estadual-2020?highlight=WyJwaWIiLCJlc3RhZHVhbCIsInBpYiBlc3RhZHVhbCJd)
+[^1]: [IJSN (2022)](https://ijsn.es.gov.br/publicacoes/cadernos/pib-estadual)
 
 #### 2 Pacotes
 
